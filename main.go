@@ -21,7 +21,7 @@ func init() {
 	flag.StringVar(&repoURL, "r", "~/go/src", "URI for the main repo branch you want to start from")
 	flag.StringVar(&newDirPath, "p", "new-dir", "Abosolute directory to clone repo from the repo URL into; creates a new directory with the given branch name")
 	flag.StringVar(&newBranchName, "n", "newBranch", "Name to give new branch after cloning")
-	checkoutFrom = flag.String("branch to clone from, defaults to main branch", "", "Branch to checkout from after cloning before creating a new branch")
+	checkoutFrom = flag.String("c", "", "Branch to checkout from after cloning before creating a new branch")
 	flag.Parse()
 
 	// set the new directory name
