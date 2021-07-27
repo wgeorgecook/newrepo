@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 )
 
@@ -15,25 +16,44 @@ type Git struct {
 
 // cloneRepo pulls down the repo given at the repoURI from the flag arguments into the directory given
 func cloneRepo() error {
-	fmt.Println("start clone repo")
+	log.Println("start clone repo")
 
 	cloneOptions := git.CloneOptions{
 		URL:      repoURL,
 		Progress: os.Stdout,
 	}
 
-	if checkoutFrom != nil {
-		cloneOptions.ReferenceName = plumbing.ReferenceName(*checkoutFrom)
-	}
-
-	r, err := git.PlainClone(dirName, false, &cloneOptions)
+	var r *git.Repository
+	var err error
+	r, err = git.PlainClone(dirName, false, &cloneOptions)
 	if err != nil {
-		fmt.Printf("could not clone repo: %v\n", err)
+		log.Printf("could not clone repo: %v\n", err)
 		return err
 	}
 
-	fmt.Println("repo cloned")
-	repo := Git{ repo: r}
+	if checkoutFrom != nil {
+		log.Println("fetching branches on remote")
+		w, _ := r.Worktree()
+		err := r.Fetch(&git.FetchOptions{
+			RefSpecs: []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
+		})
+		if err != nil {
+			fmt.Printf("could not fetch existing branches: %v\n", err)
+			return err
+		}
+		log.Printf("checking out given branch %v\n", *checkoutFrom)
+		err = w.Checkout(&git.CheckoutOptions{
+			Branch: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", *checkoutFrom)),
+			Force:  true,
+		})
+		if err != nil {
+			fmt.Printf("could not checkout given branch %v", err)
+			return err
+		}
+	}
+
+	log.Println("repo cloned")
+	repo := Git{repo: r}
 	// checkout a new branch
 	if err := repo.CreateNewBranch(); err != nil {
 		log.Printf("could not create new branch: %v\n", err)

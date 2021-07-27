@@ -24,6 +24,9 @@ func init() {
 	checkoutFrom = flag.String("c", "", "Branch to checkout from after cloning before creating a new branch")
 	flag.Parse()
 
+	if *checkoutFrom == "" {
+		checkoutFrom = nil
+	}
 	// set the new directory name
 	dirName = filepath.Join(newDirPath, newBranchName)
 }
