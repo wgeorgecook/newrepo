@@ -47,7 +47,7 @@ func cloneRepo() error {
 			Force:  true,
 		})
 		if err != nil {
-			fmt.Printf("could not checkout given branch %v", err)
+			fmt.Printf("could not checkout given branch: %v", err)
 			return err
 		}
 	}
@@ -71,14 +71,14 @@ func (g Git) CreateNewBranch() error {
 		log.Printf("could not create worktree: %v\n", err)
 		return err
 	}
-
 	// and checkout a new branch based on the given name
 	err = w.Checkout(&git.CheckoutOptions{
 		Branch: plumbing.NewBranchReferenceName(newBranchName),
 		Create: true,
+		Force:  true,
 	})
 	if err != nil {
-		log.Printf("could not checkout branch %v\n", err)
+		log.Printf("could not checkout branch: %v\n", err)
 		return err
 	}
 	log.Println("new branch created")
